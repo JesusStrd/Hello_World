@@ -46,7 +46,7 @@ void loop() {
     lcd.print("PaloVerde");
     lcd.setCursor(0,1);
     lcd.print(litros); 
-    delay(3000);
+    delay(5000);
   }
   else
   {
