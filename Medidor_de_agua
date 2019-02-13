@@ -1,0 +1,55 @@
+//LCD
+#include<Wire.h>
+#include<LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27,16,2);
+//boton
+const int boton_lcd = 15;
+int buttonState = 0;
+int button;
+//Sensor
+int flowPin = 14;   //This is the input pin on the Arduino
+double flowRate;    //This is the value we intend to calculate. 
+static volatile uint16_t count; //This integer needs to be set as volatile to ensure it updates correctly during the interrupt process.  
+double litros;
+
+void setup() {
+  // put your setup code here, to run once:
+  //Configuraciones de LCD
+  Wire.begin();
+  lcd.init();
+  lcd.clear();
+  //Configuraciones boton
+  pinMode(buttonState, INPUT_PULLUP);
+  attachInterrupt(boton_lcd, boton, FALLING);
+  //Configuraciones Sensor de Flujo
+  pinMode(flowPin, INPUT_PULLUP);           //Sets the pin as an input
+  attachInterrupt(flowPin, Flow, RISING);  //Configures interrupt 0 (pin 2 on the Arduino Uno) to run the function "Flow"  
+}
+void Flow()
+{
+   count++; //Every time this function is called, increment "count" by 1
+}
+void boton(){
+  button=1;
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  flowRate = count;        // Pulse Frequency / 11 Q = flow rate L/min
+  flowRate /=  11;         //Convert seconds to minutes, giving you mL / Minute
+  flowRate /=  60;       //Convert mL to Liters, giving you Liters / Minute
+  litros = flowRate;  
+  if (button == 1)
+  {
+    lcd.backlight();
+    lcd.setCursor(0,0);
+    lcd.print("PaloVerde");
+    lcd.setCursor(0,1);
+    lcd.print(litros); 
+    delay(3000);
+  }
+  else
+  {
+    lcd.clear(); 
+  }
+}
